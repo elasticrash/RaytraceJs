@@ -1,4 +1,5 @@
 import * as  sharp from 'sharp';
+import { Vector } from './vector';
 
 (async () => {
   const image = sharp.default({
@@ -22,10 +23,16 @@ import * as  sharp from 'sharp';
   if (meta.width && meta.height && meta.channels) {
     for (let i = 0; i < meta.width; i += 1) {
       for (let j = 0; j < meta.height; j++) {
+        const vec3: Vector = new Vector(
+          j / meta.height,
+          i / meta.width,
+          0.2
+        );
+
         const offset = 3 * (meta.width * j + i);
-        data[offset] = 255 * (j / meta.height);
-        data[offset + 1] = 255 * (i / meta.width);
-        data[offset + 2] = 255 * 0.2;
+        data[offset] = 255 * vec3.r;
+        data[offset + 1] = 255 * vec3.g;
+        data[offset + 2] = 255 * vec3.b;
       }
     }
 

@@ -1,4 +1,4 @@
-export class Vector3 {
+export class Vector {
     public e: number[]
 
     constructor(e1: number, e2: number, e3: number) {
