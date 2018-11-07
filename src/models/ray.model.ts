@@ -1,5 +1,5 @@
-import { Vector } from "./vector";
-import { VectorMath } from "./vector-math";
+import { Vector } from "./vector.model";
+import { VectorMath } from "../utilities/vector-math";
 
 export class Ray {
     v1: Vector;
@@ -18,7 +18,7 @@ export class Ray {
         return this.v2;
     }
 
-    pointAt(t: number) {
+    pointAt(t: number): Vector {
         const vm = new VectorMath();
         const scale = vm.scale(this.v2, t);
         const add = vm.add(this.v1, scale);

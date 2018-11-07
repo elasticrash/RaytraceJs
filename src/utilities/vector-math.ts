@@ -1,4 +1,4 @@
-import { Vector } from "./models/vector.model";
+import { Vector } from "../models/vector.model";
 
 export class VectorMath {
 
