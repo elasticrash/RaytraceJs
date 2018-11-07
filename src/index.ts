@@ -2,6 +2,7 @@ import * as  sharp from 'sharp';
 import { Vector } from './vector';
 import { Ray } from './ray';
 import { VectorMath } from './vector-math';
+const vm = new VectorMath();
 
 (async () => {
   const image = sharp.default({
@@ -16,8 +17,6 @@ import { VectorMath } from './vector-math';
 
   const data = await image.raw().toBuffer();
   const meta: sharp.Metadata = await image.metadata();
-
-  const vm = new VectorMath();
 
   console.log(data.length);
   console.log(meta);
@@ -36,8 +35,8 @@ import { VectorMath } from './vector-math';
         const v = j / meta.height;
 
         const ray: Ray = new Ray(
-          origin, vm.add(vm.multiplyWithNumber(hor, u),
-          vm.multiplyWithNumber(ver, v))
+          origin, vm.add(llc,vm.add(vm.multiplyWithNumber(hor, u),
+            vm.multiplyWithNumber(ver, v)))
         );
 
         const vec3: Vector = color(ray);
@@ -54,10 +53,21 @@ import { VectorMath } from './vector-math';
   }
 })();
 
-function color(ray: Ray) {
-  const vm = new VectorMath();
+function color(ray: Ray): Vector {
+  if (hitSphere(new Vector(0, 0, -1), 0.5, ray)) {
+    return new Vector(1, 0, 0);
+  }
   const unitDirection = vm.unit(ray.direction);
   const t = 0.5 * (unitDirection.y + 1);
   return vm.add(vm.multiplyWithNumber(new Vector(1, 1, 1), (1 - t)),
     vm.multiplyWithNumber(new Vector(0.5, 0.7, 1), t));
+}
+
+function hitSphere(center: Vector, radius: number, ray: Ray): boolean {
+  const oc: Vector = vm.subtract(ray.origin, center);
+  const a: number = vm.dot(ray.direction, ray.direction);
+  const b: number = 2 * vm.dot(oc, ray.direction);
+  const c: number = vm.dot(oc, oc) - Math.pow(radius, 2);
+  const d: number = Math.pow(b, 2) - (4 * a * c);
+  return (d > 0);
 }
