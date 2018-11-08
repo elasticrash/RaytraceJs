@@ -6,6 +6,7 @@ import { HitRecord } from './models/hit-record.model';
 import { Hitable } from './models/hitable.interface';
 import { Sphere } from './models/sphere.model';
 import { HitableList } from './models/hitable-list.model';
+import { Camera } from './models/camera.model';
 const vm = new VectorMath();
 
 (async () => {
@@ -21,16 +22,13 @@ const vm = new VectorMath();
 
   const data = await image.raw().toBuffer();
   const meta: sharp.Metadata = await image.metadata();
+  const ns = 100;
 
   console.log(data.length);
   console.log(meta);
 
   //camera
-  const llc = new Vector(-2, -1, -1);
-  const hor = new Vector(4, 0, 0);
-  const ver = new Vector(0, 2, 0);
-  const origin = new Vector(0, 0, 0);
-
+  const cam = new Camera();
 
   const HObjects: Hitable[] = [];
   HObjects.push(new Sphere(new Vector(0, 0, -1), 0.5))
@@ -42,21 +40,25 @@ const vm = new VectorMath();
     for (let j = meta.height - 1; j >= 0; j -= 1) {
       for (let i = 0; i < meta.width; i += 1) {
 
-        const u = i / meta.width;
-        const v = j / meta.height;
+        let col = new Vector(0, 0, 0);
+        let previous = new Vector(0, 0, 0);
 
-        const ray: Ray = new Ray(
-          origin, vm.add(llc, vm.add(vm.multiplyWithNumber(hor, u),
-            vm.multiplyWithNumber(ver, v)))
-        );
+        for (let s = 0; s < ns; s += 1) {
+          const u = (i + Math.random()) / meta.width;
+          const v = (j + Math.random()) / meta.height;
+          const ray: Ray = cam.ray(u, v);
+          const p: Vector = ray.pointAt(2);
+          const cc = color(ray, world)
+          col = vm.add(cc, previous);
+          previous = new Vector(col.r, col.g, col.b);
+        }
 
-        const p: Vector = ray.pointAt(2);
-        const vec3: Vector = color(ray, world);
-
+        col = vm.divideWithNumber(col, ns);
+        col = new Vector(Math.sqrt(col.r), Math.sqrt(col.g), Math.sqrt(col.b));
         const offset = 3 * (meta.width * j + i);
-        data[offset] = 255 * vec3.r;
-        data[offset + 1] = 255 * vec3.g;
-        data[offset + 2] = 255 * vec3.b;
+        data[offset] = 255 * col.r;
+        data[offset + 1] = 255 * col.g;
+        data[offset + 2] = 255 * col.b;
       }
     }
 
@@ -67,10 +69,11 @@ const vm = new VectorMath();
 
 function color(ray: Ray, world: Hitable): Vector {
   const rec: HitRecord = new HitRecord(0, new Vector(0, 0, 0), new Vector(0, 0, 0));
-  const hit = world.hit(ray, 0, Number.MAX_VALUE, rec);
+  const hit = world.hit(ray, 0.001, Number.MAX_VALUE, rec);
 
   if (hit && world.rec) {
-    return vm.multiplyWithNumber(new Vector(world.rec.normal.x + 1, world.rec.normal.y + 1, world.rec.normal.z + 1), 0.5);
+    const target = vm.add(vm.add(world.rec.p, world.rec.normal), randomInUnitSphere());
+    return vm.multiplyWithNumber(color(new Ray(rec.p, target), world), 0.5);
   }
   else {
     const unitDirection = vm.unit(ray.direction);
@@ -78,5 +81,13 @@ function color(ray: Ray, world: Hitable): Vector {
     return vm.add(vm.multiplyWithNumber(new Vector(1, 1, 1), (1 - t)),
       vm.multiplyWithNumber(new Vector(0.5, 0.7, 1), t));
   }
+}
 
+function randomInUnitSphere(): Vector {
+  let p = new Vector(0, 0, 0);
+  do {
+    p = vm.subtract(vm.multiplyWithNumber(new Vector(Math.random(), Math.random(), Math.random()), 2), new Vector(1, 1, 1));
+  } while (p.squareLength >= 1);
+
+  return p;
 }
