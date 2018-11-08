@@ -53,4 +53,11 @@ export class VectorMath {
 
         return p;
     }
+
+    reflect(v1: Vector, v2: Vector) {
+        return this.subtract(
+            v1,
+            this.multiplyWithNumber(this.multiplyWithNumber(v2,
+                this.dot(v1, v2)), 2));
+    }
 }
