@@ -82,12 +82,3 @@ function color(ray: Ray, world: Hitable): Vector {
       vm.multiplyWithNumber(new Vector(0.5, 0.7, 1), t));
   }
 }
-
-function randomInUnitSphere(): Vector {
-  let p = new Vector(0, 0, 0);
-  do {
-    p = vm.subtract(vm.multiplyWithNumber(new Vector(Math.random(), Math.random(), Math.random()), 2), new Vector(1, 1, 1));
-  } while (p.squareLength >= 1);
-
-  return p;
-}

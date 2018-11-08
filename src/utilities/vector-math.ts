@@ -44,4 +44,13 @@ export class VectorMath {
     unit(v1: Vector): Vector {
         return this.divideWithNumber(v1, v1.length);
     }
+
+    randomInUnitSphere(): Vector {
+        let p = new Vector(0, 0, 0);
+        do {
+            p = this.subtract(this.multiplyWithNumber(new Vector(Math.random(), Math.random(), Math.random()), 2), new Vector(1, 1, 1));
+        } while (p.squareLength >= 1);
+
+        return p;
+    }
 }
