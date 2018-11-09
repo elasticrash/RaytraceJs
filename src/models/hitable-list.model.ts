@@ -2,7 +2,6 @@ import { Hitable } from "./hitable.interface";
 import { Ray } from "./ray.model";
 import { HitRecord } from "./hit-record.model";
 import { Vector } from "./vector.model";
-import { Sphere } from "./sphere.model";
 
 export class HitableList implements Hitable {
 
@@ -16,7 +15,9 @@ export class HitableList implements Hitable {
     }
 
     hit(ray: Ray, tMin: number, tMax: Number, rec: HitRecord): boolean {
-        const tempRec: HitRecord = new HitRecord(0, new Vector(0, 0, 0), new Vector(0, 0, 0));
+        const tempRec: HitRecord = new HitRecord(0,
+            new Vector(0, 0, 0),
+            new Vector(0, 0, 0));
         let hitAnything: boolean = false;
         let closestSoFar = tMax;
 

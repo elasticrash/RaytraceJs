@@ -3,15 +3,18 @@ import { Ray } from "./ray.model";
 import { HitRecord } from "./hit-record.model";
 import { Vector } from "./vector.model";
 import { VectorMath } from "../utilities/vector-math";
+import { Material } from "../materials/material.interface";
 
 export class Sphere implements Hitable {
     rec: HitRecord | undefined;
     center: Vector;
     radius: number;
+    material: Material;
 
-    constructor(center: Vector, radius: number) {
+    constructor(center: Vector, radius: number, material: Material) {
         this.center = center;
         this.radius = radius;
+        this.material = material;
     }
 
     hit(ray: Ray, tMin: number, tMax: Number, rec: HitRecord): boolean {
@@ -29,6 +32,7 @@ export class Sphere implements Hitable {
                 rec.p = ray.pointAt(rec.t);
                 rec.normal = vm.divideWithNumber(vm.subtract(rec.p, this.center), this.radius);
                 this.rec = rec;
+                this.rec.material = this.material;
                 return true;
             }
             temp = (-b + Math.sqrt(d)) / a;
@@ -37,6 +41,7 @@ export class Sphere implements Hitable {
                 rec.p = ray.pointAt(rec.t);
                 rec.normal = vm.divideWithNumber(vm.subtract(rec.p, this.center), this.radius);
                 this.rec = rec;
+                this.rec.material = this.material;
                 return true;
             }
         }

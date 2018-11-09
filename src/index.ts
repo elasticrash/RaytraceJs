@@ -7,6 +7,10 @@ import { Hitable } from './models/hitable.interface';
 import { Sphere } from './models/sphere.model';
 import { HitableList } from './models/hitable-list.model';
 import { Camera } from './models/camera.model';
+import { Lambertian } from './materials/lambertian.model';
+import { Material } from './materials/material.interface';
+import { Metal } from './materials/metal.model';
+import { Dialectric } from './materials/dialectric.model';
 const vm = new VectorMath();
 
 (async () => {
@@ -24,15 +28,16 @@ const vm = new VectorMath();
   const meta: sharp.Metadata = await image.metadata();
   const ns = 100;
 
-  console.log(data.length);
-  console.log(meta);
-
   //camera
-  const cam = new Camera();
+  const cam = new Camera(90, 2);
 
   const HObjects: Hitable[] = [];
-  HObjects.push(new Sphere(new Vector(0, 0, -1), 0.5))
-  HObjects.push(new Sphere(new Vector(0, -100.5, -1), 100))
+  HObjects.push(new Sphere(new Vector(0, 0, -1), 0.5, new Lambertian(new Vector(0.1, 0.2, 0.5))));
+  HObjects.push(new Sphere(new Vector(0, -100.5, -1), 100, new Lambertian(new Vector(0.8, 0.8, 0))));
+  HObjects.push(new Sphere(new Vector(1, 0, -1), 0.5, new Metal(new Vector(0.8, 0.6, 0.2), 0.1)));
+  HObjects.push(new Sphere(new Vector(-1, 0, -1), 0.5, new Dialectric(1.5)));
+  HObjects.push(new Sphere(new Vector(-1, 0, -1), 0.45, new Dialectric(1.5)));
+
 
   const world: Hitable = new HitableList(HObjects);
 
@@ -40,6 +45,9 @@ const vm = new VectorMath();
     for (let j = meta.height - 1; j >= 0; j -= 1) {
       for (let i = 0; i < meta.width; i += 1) {
 
+        if (j % 100) {
+          process.stdout.write(`Rendering: ${Math.round(Math.abs(((j / meta.height) * 100) - 100)).toString()}%\r`);
+        }
         let col = new Vector(0, 0, 0);
         let previous = new Vector(0, 0, 0);
 
@@ -48,7 +56,7 @@ const vm = new VectorMath();
           const v = (j + Math.random()) / meta.height;
           const ray: Ray = cam.ray(u, v);
           const p: Vector = ray.pointAt(2);
-          const cc = color(ray, world)
+          const cc = color(ray, world, 0)
           col = vm.add(cc, previous);
           previous = new Vector(col.r, col.g, col.b);
         }
@@ -62,18 +70,31 @@ const vm = new VectorMath();
       }
     }
 
-    await sharp.default(data, { raw: { width: meta.width, height: meta.height, channels: meta.channels } }).rotate(180).toFile('test.png')
+    await sharp.default(data, { raw: { width: meta.width, height: meta.height, channels: meta.channels } }).rotate(180).flop().toFile('test.png')
 
   }
 })();
 
-function color(ray: Ray, world: Hitable): Vector {
-  const rec: HitRecord = new HitRecord(0, new Vector(0, 0, 0), new Vector(0, 0, 0));
+function color(ray: Ray, world: Hitable, depth: number): Vector {
+  const rec: HitRecord = new HitRecord(
+    0,
+    new Vector(0, 0, 0),
+    new Vector(0, 0, 0));
   const hit = world.hit(ray, 0.001, Number.MAX_VALUE, rec);
 
-  if (hit && world.rec) {
-    const target = vm.add(vm.add(world.rec.p, world.rec.normal), randomInUnitSphere());
-    return vm.multiplyWithNumber(color(new Ray(rec.p, target), world), 0.5);
+  if (hit && world.rec && world.rec.material) {
+    const scattered = new Ray(new Vector(0, 0, 0), new Vector(0, 0, 0));
+    const attenutation = new Vector(0, 0, 0);
+
+    if (depth < 50 && world.rec.material.scatter(ray, world.rec, attenutation, scattered)) {
+      if (world.rec.material.scattered && world.rec.material.attentuation) {
+        return vm.multiply(world.rec.material.attentuation, color(world.rec.material.scattered, world, depth + 1));
+      } else {
+        return new Vector(0, 0, 0);
+      }
+    } else {
+      return new Vector(0, 0, 0);
+    }
   }
   else {
     const unitDirection = vm.unit(ray.direction);

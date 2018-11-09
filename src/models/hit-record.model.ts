@@ -1,16 +1,15 @@
 import { Vector } from "./vector.model";
-import { Material } from "./material.interface";
+import { Material } from "../materials/material.interface";
 
 export class HitRecord {
     t: number;
     p: Vector;
     normal: Vector;
-    material: Material;
+    material: Material | undefined;
 
-    constructor(t: number, p: Vector, normal: Vector, material: Material) {
+    constructor(t: number, p: Vector, normal: Vector) {
         this.t = t;
         this.p = p;
         this.normal = normal;
-        this.material = material;
     }
 }

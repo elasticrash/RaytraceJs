@@ -41,6 +41,10 @@ export class VectorMath {
             v1.r * v2.g - v1.g * v2.r);
     }
 
+    flipSign(v1: Vector) {
+        return new Vector(-v1.r, -v1.g, -v1.b);
+    }
+
     unit(v1: Vector): Vector {
         return this.divideWithNumber(v1, v1.length);
     }
@@ -54,10 +58,12 @@ export class VectorMath {
         return p;
     }
 
-    reflect(v1: Vector, v2: Vector) {
+    reflect(v1: Vector, v2: Vector): Vector {
         return this.subtract(
             v1,
-            this.multiplyWithNumber(this.multiplyWithNumber(v2,
-                this.dot(v1, v2)), 2));
+            this.multiplyWithNumber(
+                this.multiplyWithNumber(v2, this.dot(v1, v2)),
+                2)
+        );
     }
 }
