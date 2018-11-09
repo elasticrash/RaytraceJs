@@ -9,14 +9,19 @@ export class Camera {
     ver: Vector;
 
     constructor(lookFrom: Vector, lookAt: Vector, vUp: Vector, vfov: number, aspect: number) {
+        const vm = new VectorMath();
         const theta = vfov * Math.PI / 180;
         const halfHeight = Math.tan(theta / 2);
         const halfWidth = aspect * halfHeight;
 
-        this.llc = new Vector(-halfWidth, -halfHeight, -1);
+        this.origin = lookFrom;
+        const w = vm.unit(vm.subtract(lookFrom, lookAt));
+        const u = vm.unit(vm.cross(vUp, w));
+        const v = vm.cross(w, u);
+
+        this.llc = vm.subtract(vm.multiplyWithNumber(u, halfWidth), vm.multiplyWithNumber(v, halfHeight));
         this.hor = new Vector(2 * halfWidth, 0, 0);
         this.ver = new Vector(0, 2 * halfHeight, 0);
-        this.origin = new Vector(0, 0, 0);
     }
 
     ray(u: number, v: number) {
