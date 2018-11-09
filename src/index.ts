@@ -15,8 +15,8 @@ const vm = new VectorMath();
 (async () => {
   const image = sharp.default({
     create: {
-      width: 200,
-      height: 100,
+      width: 600,
+      height: 300,
       channels: 3,
       background: { r: 255, g: 0, b: 0 }
     }
