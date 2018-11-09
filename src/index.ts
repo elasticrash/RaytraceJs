@@ -8,7 +8,6 @@ import { Sphere } from './models/sphere.model';
 import { HitableList } from './models/hitable-list.model';
 import { Camera } from './models/camera.model';
 import { Lambertian } from './materials/lambertian.model';
-import { Material } from './materials/material.interface';
 import { Metal } from './materials/metal.model';
 import { Dialectric } from './materials/dialectric.model';
 const vm = new VectorMath();
@@ -27,21 +26,28 @@ const vm = new VectorMath();
   const data = await image.raw().toBuffer();
   const meta: sharp.Metadata = await image.metadata();
   const ns = 100;
-
-  //camera
-  const cam = new Camera(90, 2);
-
-  const HObjects: Hitable[] = [];
-  HObjects.push(new Sphere(new Vector(0, 0, -1), 0.5, new Lambertian(new Vector(0.1, 0.2, 0.5))));
-  HObjects.push(new Sphere(new Vector(0, -100.5, -1), 100, new Lambertian(new Vector(0.8, 0.8, 0))));
-  HObjects.push(new Sphere(new Vector(1, 0, -1), 0.5, new Metal(new Vector(0.8, 0.6, 0.2), 0.1)));
-  HObjects.push(new Sphere(new Vector(-1, 0, -1), 0.5, new Dialectric(1.5)));
-  HObjects.push(new Sphere(new Vector(-1, 0, -1), 0.45, new Dialectric(1.5)));
-
-
-  const world: Hitable = new HitableList(HObjects);
-
   if (meta.width && meta.height && meta.channels) {
+
+    const lookFrom = new Vector(3, 3, 2);
+    const lookAt = new Vector(0, 0, -1);
+    const ap = 2;
+    const dist2Focus = vm.subtract(lookFrom, lookAt).length;
+    //camera
+    const cam = new Camera(
+      lookFrom,
+      lookAt,
+      new Vector(0, 1, 0),
+      45, meta.width / meta.height, ap, dist2Focus);
+
+    const HObjects: Hitable[] = [];
+    HObjects.push(new Sphere(new Vector(0, 0, -1), 0.5, new Lambertian(new Vector(0.1, 0.2, 0.5))));
+    HObjects.push(new Sphere(new Vector(0, -100.5, -1), 100, new Lambertian(new Vector(0.2, 0.2, 0.3))));
+    HObjects.push(new Sphere(new Vector(1, 0, -1), 0.5, new Metal(new Vector(0.8, 0.6, 0.2), 0.1)));
+    HObjects.push(new Sphere(new Vector(-1, 0, -1), 0.5, new Dialectric(1.5)));
+    HObjects.push(new Sphere(new Vector(-1, 0, -1), 0.45, new Dialectric(1.5)));
+
+    const world: Hitable = new HitableList(HObjects);
+
     for (let j = meta.height - 1; j >= 0; j -= 1) {
       for (let i = 0; i < meta.width; i += 1) {
 

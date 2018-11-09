@@ -36,9 +36,9 @@ export class VectorMath {
 
     cross(v1: Vector, v2: Vector): Vector {
         return new Vector(
-            v1.g * v2.b - v1.b * v2.g,
+            (v1.g * v2.b - v1.b * v2.g),
             -(v1.r * v2.b - v1.b * v2.r),
-            v1.r * v2.g - v1.g * v2.r);
+            (v1.r * v2.g - v1.g * v2.r));
     }
 
     flipSign(v1: Vector) {
@@ -54,6 +54,15 @@ export class VectorMath {
         do {
             p = this.subtract(this.multiplyWithNumber(new Vector(Math.random(), Math.random(), Math.random()), 2), new Vector(1, 1, 1));
         } while (p.squareLength >= 1);
+
+        return p;
+    }
+
+    randomInUnitDisk(): Vector {
+        let p = new Vector(0, 0, 0);
+        do {
+            p = this.subtract(this.multiplyWithNumber(new Vector(Math.random(), Math.random(), 0), 2), new Vector(1, 1, 0));
+        } while (this.dot(p, p) >= 1);
 
         return p;
     }
