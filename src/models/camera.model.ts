@@ -39,9 +39,6 @@ export class Camera {
 
         this.hor = vm.multiplyWithNumber(this.u, 2 * halfWidth * focusDist);
         this.ver = vm.multiplyWithNumber(this.v, 2 * halfHeight * focusDist);
-
-        // this.llc = new Vector(-2, -1, -1);
-        console.log("camera ok");
     }
 
     ray(s: number, t: number) {

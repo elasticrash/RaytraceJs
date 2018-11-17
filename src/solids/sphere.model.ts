@@ -1,7 +1,7 @@
-import { Hitable } from "./hitable.interface";
-import { Ray } from "./ray.model";
-import { HitRecord } from "./hit-record.model";
-import { Vector } from "./vector.model";
+import { Hitable } from "../models/hitable.interface";
+import { Ray } from "../models/ray.model";
+import { HitRecord } from "../models/hit-record.model";
+import { Vector } from "../models/vector.model";
 import { VectorMath } from "../utilities/vector-math";
 import { Material } from "../materials/material.interface";
 
