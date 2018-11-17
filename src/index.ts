@@ -4,15 +4,19 @@ import { Ray } from './models/ray.model';
 import { VectorMath } from './utilities/vector-math';
 import { HitRecord } from './models/hit-record.model';
 import { Hitable } from './models/hitable.interface';
-import { Sphere } from './models/sphere.model';
 import { HitableList } from './models/hitable-list.model';
 import { Camera } from './models/camera.model';
 import { Lambertian } from './materials/lambertian.model';
 import { Metal } from './materials/metal.model';
 import { Dialectric } from './materials/dialectric.model';
+import { Sphere } from './solids/sphere.model';
+import { Box } from './solids/box.model';
 const vm = new VectorMath();
 
 (async () => {
+
+  console.log("starting");
+  console.log(new Date().toLocaleTimeString())
   const image = sharp.default({
     create: {
       width: 600,
@@ -28,7 +32,7 @@ const vm = new VectorMath();
   const ns = 100;
   if (meta.width && meta.height && meta.channels) {
 
-    const lookFrom = new Vector(3, 3, 2);
+    const lookFrom = new Vector(5, 4, 6);
     const lookAt = new Vector(0, 0, -1);
     const ap = 2;
     const dist2Focus = vm.subtract(lookFrom, lookAt).length;
@@ -37,14 +41,18 @@ const vm = new VectorMath();
       lookFrom,
       lookAt,
       new Vector(0, 1, 0),
-      45, meta.width / meta.height, ap, dist2Focus);
+      44, meta.width / meta.height, ap, dist2Focus);
 
     const HObjects: Hitable[] = [];
-    HObjects.push(new Sphere(new Vector(0, 0, -1), 0.5, new Lambertian(new Vector(0.1, 0.2, 0.5))));
+
+    HObjects.push(new Sphere(new Vector(0, 0, -1), 0.6, new Lambertian(new Vector(0.1, 0.2, 0.5))));
     HObjects.push(new Sphere(new Vector(0, -100.5, -1), 100, new Lambertian(new Vector(0.2, 0.2, 0.3))));
-    HObjects.push(new Sphere(new Vector(1, 0, -1), 0.5, new Metal(new Vector(0.8, 0.6, 0.2), 0.1)));
-    HObjects.push(new Sphere(new Vector(-1, 0, -1), 0.5, new Dialectric(1.5)));
-    HObjects.push(new Sphere(new Vector(-1, 0, -1), 0.45, new Dialectric(1.5)));
+    HObjects.push(new Sphere(new Vector(2.5, 0.5, -2), 0.9, new Metal(new Vector(0.8, 0.6, 0.2), 0.1)));
+
+
+    HObjects.push(new Sphere(new Vector(-1.5, 0, -1), 0.85, new Dialectric(1.6)));
+    HObjects.push(new Sphere(new Vector(-3.5, 0, -1), 0.80, new Lambertian(new Vector(0.8, 0.2, 0.3))));
+    HObjects.push(new Box(new Vector(1, -0.5, -1), new Vector(2, 0.51, 0), new Lambertian(new Vector(0.2, 0.2, 0.3))));
 
     const world: Hitable = new HitableList(HObjects);
 
@@ -78,6 +86,9 @@ const vm = new VectorMath();
 
     await sharp.default(data, { raw: { width: meta.width, height: meta.height, channels: meta.channels } }).rotate(180).flop().toFile('test.png')
 
+    console.log("");
+    console.log("ended");
+    console.log(new Date().toLocaleTimeString())
   }
 })();
 

@@ -18,6 +18,13 @@ export class Ray {
         return this.v2;
     }
 
+    get inverse() {
+        return new Vector(
+            1 / this.direction.x,
+            1 / this.direction.y,
+            1 / this.direction.z);
+    }
+
     pointAt(t: number): Vector {
         const vm = new VectorMath();
         const scale = vm.scale(this.v2, t);

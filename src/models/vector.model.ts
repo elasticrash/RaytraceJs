@@ -11,12 +11,24 @@ export class Vector {
         return this.e[0];
     }
 
+    set x(x: number) {
+        this.e[0] = x;
+    }
+
     get y() {
         return this.e[1];
     }
 
+    set y(y: number) {
+        this.e[1] = y;
+    }
+
     get z() {
         return this.e[2];
+    }
+
+    set z(z: number) {
+        this.e[2] = z;
     }
 
     get r() {
